@@ -20,7 +20,7 @@ public class UserDetailsDTO {
 	
 	private String password;
 	
-	private List<AddressDTO> addresses;
+	private List<AddressDetailsDTO> addresses;
 
 	public Long getId() {
 		return id;
@@ -70,11 +70,11 @@ public class UserDetailsDTO {
 		this.password = password;
 	}
 
-	public List<AddressDTO> getAddresses() {
+	public List<AddressDetailsDTO> getAddresses() {
 		return addresses;
 	}
 
-	public void setAddresses(List<AddressDTO> addresses) {
+	public void setAddresses(List<AddressDetailsDTO> addresses) {
 		this.addresses = addresses;
 	}
 
