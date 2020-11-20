@@ -2,6 +2,7 @@ package com.pratap.ws.service;
 
 import java.util.List;
 
+import com.pratap.ws.shared.dto.AddressDetailsDTO;
 import com.pratap.ws.shared.dto.UserDetailsDTO;
 
 public interface UserDetailsService {
@@ -19,5 +20,9 @@ public interface UserDetailsService {
 	UserDetailsDTO updateUser(UserDetailsDTO updateUserDetails, String userId);
 	
 	UserDetailsDTO updatePartialUserDetails(UserDetailsDTO partialUserDetails, String userId);
+	
+	List<AddressDetailsDTO> fetchUserAddresses(String userId);
+
+	AddressDetailsDTO fetchUserAddress(String userId, String addressId);
 
 }

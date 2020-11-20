@@ -1,5 +1,6 @@
 package com.pratap.ws.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,10 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pratap.ws.dao.entities.AddressDetailsEntity;
 import com.pratap.ws.dao.entities.UserDetailsEntity;
 import com.pratap.ws.dao.repositories.UserDetailsRepository;
 import com.pratap.ws.exceptions.UserDetailsServiceException;
 import com.pratap.ws.service.UserDetailsService;
+import com.pratap.ws.shared.dto.AddressDetailsDTO;
 import com.pratap.ws.shared.dto.UserDetailsDTO;
 import com.pratap.ws.utils.WSUtil;
 
@@ -112,6 +115,30 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		if (partialUserDetails.getPassword() != null)
 			dto.setPassword(partialUserDetails.getPassword());
 		return userDetailsRepository.save(dto);
+	}
+
+	@Override
+	public List<AddressDetailsDTO> fetchUserAddresses(String userId) {
+		
+		modelmapper = new ModelMapper();
+		List<AddressDetailsDTO> addresses = new ArrayList<>();
+		
+		UserDetailsEntity userDetailsEntity = userDetailsRepository.findByUserId(userId).orElseThrow(() -> new UserDetailsServiceException("User Not Found, userId : "+userId));
+		userDetailsEntity.getAddresses().stream().forEach(address -> {
+			addresses.add(modelmapper.map(address, AddressDetailsDTO.class));
+		});
+		return addresses;
+	}
+
+	@Override
+	public AddressDetailsDTO fetchUserAddress(String userId, String addressId) {
+
+		modelmapper = new ModelMapper();
+		UserDetailsEntity userDetailsEntity = userDetailsRepository.findByUserId(userId).orElseThrow(() -> new UserDetailsServiceException("User Not Found, userId : "+userId));
+		AddressDetailsEntity addressDetailsEntity = userDetailsEntity.getAddresses().stream().filter(address -> address.getAddressId().equals(addressId)).findFirst().orElseThrow(() -> new UserDetailsServiceException("No Address associated with User, userId : "+userId+" and addressId : "+addressId));
+		
+		return modelmapper.map(addressDetailsEntity, AddressDetailsDTO.class);
+		
 	}
 
 }

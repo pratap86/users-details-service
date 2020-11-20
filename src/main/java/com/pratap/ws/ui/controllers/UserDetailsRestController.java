@@ -24,14 +24,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pratap.ws.exceptions.UserDetailsServiceException;
 import com.pratap.ws.service.UserDetailsService;
+import com.pratap.ws.shared.dto.AddressDetailsDTO;
 import com.pratap.ws.shared.dto.UserDetailsDTO;
 import com.pratap.ws.ui.model.request.UserDetailsRequestModel;
 import com.pratap.ws.ui.model.request.UserDetailsUpdateRequestModel;
+import com.pratap.ws.ui.model.response.AddressDetailsResponseModel;
 import com.pratap.ws.ui.model.response.UserDetailsResponseModel;
 
 @RestController
 @RequestMapping("users")
-public class UserController {
+public class UserDetailsRestController {
 
 	@Autowired
 	private UserDetailsService userDetailsService;
@@ -127,6 +129,25 @@ public class UserController {
 			return new ResponseEntity<UserDetailsResponseModel>(responseModel, HttpStatus.CREATED);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	}
+	
+	@GetMapping(path = "/{userId}/addresses", 
+			produces = { MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE })
+	public ResponseEntity<List<AddressDetailsResponseModel>> getUserAddresses(@PathVariable("userId") String userId){
+		modelMapper = new ModelMapper();
+		List<AddressDetailsDTO> userAddresses = userDetailsService.fetchUserAddresses(userId);
+		List<AddressDetailsResponseModel> response = userAddresses.stream().map(dto -> modelMapper.map(dto, AddressDetailsResponseModel.class)).collect(Collectors.toList());
+		return new ResponseEntity<List<AddressDetailsResponseModel>>(response, HttpStatus.FOUND);
+	}
+	
+	@GetMapping(path = "/{userId}/addresses/{addressId}",
+			produces = { MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE })
+	public ResponseEntity<AddressDetailsResponseModel> getUserAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId){
+		
+		modelMapper = new ModelMapper();
+		AddressDetailsResponseModel response = modelMapper.map(userDetailsService.fetchUserAddress(userId, addressId), AddressDetailsResponseModel.class);
+		
+		return new ResponseEntity<AddressDetailsResponseModel>(response, HttpStatus.FOUND);
 	}
 
 }

@@ -2,7 +2,7 @@ package com.pratap.ws.shared.dto;
 
 import com.pratap.ws.shared.AddressType;
 
-public class AddressDTO {
+public class AddressDetailsDTO {
 
 	private String addressId;
 	private String houseNo;
