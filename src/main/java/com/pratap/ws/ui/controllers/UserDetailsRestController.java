@@ -1,5 +1,6 @@
 package com.pratap.ws.ui.controllers;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,6 +8,9 @@ import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,8 @@ import com.pratap.ws.ui.model.request.UserDetailsRequestModel;
 import com.pratap.ws.ui.model.request.UserDetailsUpdateRequestModel;
 import com.pratap.ws.ui.model.response.AddressDetailsResponseModel;
 import com.pratap.ws.ui.model.response.UserDetailsResponseModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("users")
@@ -133,21 +139,38 @@ public class UserDetailsRestController {
 	
 	@GetMapping(path = "/{userId}/addresses", 
 			produces = { MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE })
-	public ResponseEntity<List<AddressDetailsResponseModel>> getUserAddresses(@PathVariable("userId") String userId){
+	public CollectionModel<AddressDetailsResponseModel> getUserAddresses(@PathVariable("userId") String userId){
+		
 		modelMapper = new ModelMapper();
 		List<AddressDetailsDTO> userAddresses = userDetailsService.fetchUserAddresses(userId);
 		List<AddressDetailsResponseModel> response = userAddresses.stream().map(dto -> modelMapper.map(dto, AddressDetailsResponseModel.class)).collect(Collectors.toList());
-		return new ResponseEntity<List<AddressDetailsResponseModel>>(response, HttpStatus.FOUND);
+		
+		//Adding links to Embedded list of Addressses
+		response.forEach(address -> {
+			address.add(linkTo(methodOn(UserDetailsRestController.class).getUserAddress(userId, address.getAddressId())).withSelfRel());
+		});
+		
+		Link userLink = linkTo(methodOn(UserDetailsRestController.class).getUserByUserId(userId)).withRel("user");
+		
+		Link selfLink = linkTo(methodOn(UserDetailsRestController.class).getUserAddresses(userId)).withSelfRel();
+		
+		return CollectionModel.of(response, userLink, selfLink);
 	}
 	
 	@GetMapping(path = "/{userId}/addresses/{addressId}",
 			produces = { MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE })
-	public ResponseEntity<AddressDetailsResponseModel> getUserAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId){
+	public EntityModel<AddressDetailsResponseModel> getUserAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId){
 		
 		modelMapper = new ModelMapper();
 		AddressDetailsResponseModel response = modelMapper.map(userDetailsService.fetchUserAddress(userId, addressId), AddressDetailsResponseModel.class);
 		
-		return new ResponseEntity<AddressDetailsResponseModel>(response, HttpStatus.FOUND);
+		Link userLink = linkTo(methodOn(UserDetailsRestController.class).getUserByUserId(userId)).withRel("user");
+		
+		Link userAddressesLink = linkTo(methodOn(UserDetailsRestController.class).getUserAddresses(userId)).withRel("addresses");
+		
+		Link selfLink = linkTo(methodOn(UserDetailsRestController.class).getUserAddress(userId, addressId)).withSelfRel();
+		
+		return EntityModel.of(response, Arrays.asList(userLink, userAddressesLink, selfLink));
 	}
 
 }
