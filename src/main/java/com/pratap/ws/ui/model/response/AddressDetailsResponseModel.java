@@ -1,8 +1,10 @@
 package com.pratap.ws.ui.model.response;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import com.pratap.ws.shared.AddressType;
 
-public class AddressDetailsResponseModel {
+public class AddressDetailsResponseModel extends RepresentationModel<AddressDetailsResponseModel>{
 
 	private String addressId;
 	private String houseNo;
