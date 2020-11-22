@@ -15,8 +15,12 @@
 9. users/{userId}/addresses/{addressId} -fetch the addresses for apecific userId & addressId
 
 # swagger
+* still needs to be incorporate embedded object Address wrt user update request
+* in 2.0-dev branch
 # validation
 # Exception Handling
 # content negotiation(xml/json)
 # Unit Testing
+* Pending
 # code coverage
+* pending
