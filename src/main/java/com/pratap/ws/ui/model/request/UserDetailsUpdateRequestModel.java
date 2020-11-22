@@ -1,7 +1,9 @@
 package com.pratap.ws.ui.model.request;
 
-public class UserDetailsUpdateRequestModel {
+import java.util.List;
 
+public class UserDetailsUpdateRequestModel {
+	
 	private String firstName;
 
 	private String lastName;
@@ -9,6 +11,8 @@ public class UserDetailsUpdateRequestModel {
 	private String email;
 
 	private String password;
+	
+	private List<AddressDetailsUpdateRequestModel> addresses;
 
 	public String getFirstName() {
 		return firstName;
@@ -40,6 +44,14 @@ public class UserDetailsUpdateRequestModel {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public List<AddressDetailsUpdateRequestModel> getAddresses() {
+		return addresses;
+	}
+
+	public void setAddresses(List<AddressDetailsUpdateRequestModel> addresses) {
+		this.addresses = addresses;
 	}
 
 }

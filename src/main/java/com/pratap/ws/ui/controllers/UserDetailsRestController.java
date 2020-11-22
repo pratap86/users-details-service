@@ -1,5 +1,8 @@
 package com.pratap.ws.ui.controllers;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,8 +24,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,11 +35,12 @@ import com.pratap.ws.ui.model.request.UserDetailsRequestModel;
 import com.pratap.ws.ui.model.request.UserDetailsUpdateRequestModel;
 import com.pratap.ws.ui.model.response.AddressDetailsResponseModel;
 import com.pratap.ws.ui.model.response.UserDetailsResponseModel;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
 
 @RestController
-@RequestMapping("users")
 public class UserDetailsRestController {
 
 	@Autowired
@@ -46,9 +48,15 @@ public class UserDetailsRestController {
 
 	ModelMapper modelMapper;
 
-	@RequestMapping(value = "/{userId}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
+	@ApiResponse(code = 200, message = "Found")
+	@ApiOperation(value = "Fetch the user details by userId", notes = "Existing user details", response = UserDetailsResponseModel.class, responseContainer = "Object")
+	@GetMapping(value = "/users/{userId}", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<UserDetailsResponseModel> getUserByUserId(@PathVariable("userId") String userId) {
+	public ResponseEntity<UserDetailsResponseModel> getUserByUserId(
+
+			@ApiParam(name = "userId", type = "String", value = "String", required = true)
+
+			@PathVariable("userId") String userId) {
 
 		modelMapper = new ModelMapper();
 		UserDetailsDTO userDetailsDTO = userDetailsService.getUserByUserId(userId);
@@ -60,9 +68,15 @@ public class UserDetailsRestController {
 		return new ResponseEntity<UserDetailsResponseModel>(HttpStatus.NOT_FOUND);
 	}
 
-	@GetMapping( path = "/searchBy",
+	@ApiResponse(code = 200, message = "Found")
+	@ApiOperation(value = "Search the user details by email", notes = "Existing user details", response = UserDetailsResponseModel.class, responseContainer = "Object")
+	@GetMapping( path = "/users/searchBy",
 			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<UserDetailsResponseModel> getUserByEmail(@RequestParam(value = "email") String email) throws UserDetailsServiceException{
+	public ResponseEntity<UserDetailsResponseModel> getUserByEmail(
+			
+			@ApiParam(name = "email", type = "String", value = "String", required = true)
+			
+			@RequestParam(value = "email") String email) throws UserDetailsServiceException{
 
 		if(!email.isEmpty()) {
 			
@@ -78,9 +92,16 @@ public class UserDetailsRestController {
 		
 	}
 
-	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, produces = {
-			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserDetailsResponseModel createUser(@Valid @RequestBody UserDetailsRequestModel requestModel) {
+	@ApiResponse(code = 201, message = "created")
+	@ApiOperation(value = "create a new entry of UserDetailsEntity in to DB", notes = "A new userdetails data record for specific User", response = UserDetailsResponseModel.class, responseContainer = "Object")
+
+	@PostMapping(path = "/users", consumes = { MediaType.APPLICATION_JSON_VALUE,
+			MediaType.APPLICATION_XML_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE,
+					MediaType.APPLICATION_XML_VALUE })
+	public UserDetailsResponseModel createUser(
+			@ApiParam(name = "UserDetailsRequestModel", type = "Object", value = "UserDetailsRequestModel", required = true)
+
+			@Valid @RequestBody UserDetailsRequestModel requestModel) {
 
 		modelMapper = new ModelMapper();
 		UserDetailsDTO userDetailsDTO = modelMapper.map(requestModel, UserDetailsDTO.class);
@@ -88,7 +109,9 @@ public class UserDetailsRestController {
 		return modelMapper.map(userDetailsService.createUser(userDetailsDTO), UserDetailsResponseModel.class);
 	}
 
-	@GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@ApiResponse(code = 200, message = "Found")
+	@ApiOperation(value = "Fetch the all user details", notes = "Existing users details", response = List.class, responseContainer = "Object")
+	@GetMapping(path = "/users", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<List<UserDetailsResponseModel>> getUsers() {
 
 		modelMapper = new ModelMapper();
@@ -98,33 +121,49 @@ public class UserDetailsRestController {
 				HttpStatus.OK);
 	}
 
-	@PutMapping(path = "/{userId}", consumes = { MediaType.APPLICATION_JSON_VALUE,
+	@ApiResponse(code = 202, message = "Updated")
+	@ApiOperation(value = "Update the existing user details by UserDetailsUpdateRequestModel", notes = "Existing user details", response = UserDetailsResponseModel.class, responseContainer = "Object")
+	@PutMapping(path = "/users/{userId}", consumes = { MediaType.APPLICATION_JSON_VALUE,
 			MediaType.APPLICATION_XML_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE,
 					MediaType.APPLICATION_XML_VALUE })
-	public ResponseEntity<UserDetailsResponseModel> updateUserDetails(@PathVariable("userId") String userId,
-			@RequestBody UserDetailsUpdateRequestModel updateRequest) {
+	public ResponseEntity<UserDetailsResponseModel> updateUserDetails(
+			@ApiParam(name = "UserDetailsUpdateRequestModel", type = "com.pratap.ws.ui.model.request.UserDetailsUpdateRequestModel", value = "UserDetailsUpdateRequestModel", required = true)
+			@RequestBody UserDetailsUpdateRequestModel updateRequest, 
+			
+			@ApiParam(name = "userId", type = "String", value = "userId", required = true)
+			@PathVariable("userId") String userId) {
 
 		modelMapper = new ModelMapper();
 		UserDetailsDTO userDetailsUpdateDTO = modelMapper.map(updateRequest, UserDetailsDTO.class);
-		UserDetailsDTO updatedUserDetailsDTO = userDetailsService.updateUser(userDetailsUpdateDTO, userId);
-		UserDetailsResponseModel responseModel = modelMapper.map(updatedUserDetailsDTO, UserDetailsResponseModel.class);
-		if (responseModel != null) {
-			return new ResponseEntity<UserDetailsResponseModel>(responseModel, HttpStatus.CREATED);
+			UserDetailsDTO updatedUserDetailsDTO = userDetailsService.updateUser(userDetailsUpdateDTO, userId);
+			UserDetailsResponseModel responseModel = modelMapper.map(updatedUserDetailsDTO, UserDetailsResponseModel.class);
+			if (responseModel != null) {
+				return new ResponseEntity<UserDetailsResponseModel>(responseModel, HttpStatus.CREATED);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
-	@DeleteMapping("/{userId}")
-	public ResponseEntity<Void> deleteUser(@PathVariable("userId") String userId) {
+	@ApiResponse(code = 203, message = "Deleted")
+	@ApiOperation(value = "Delete the existing user details by UserId", notes = "Delete an Existing user details", response = Void.class, responseContainer = "Object")
+	@DeleteMapping("/users/{userId}")
+	public ResponseEntity<Void> deleteUser(
+			@ApiParam(name = "userId", type = "String", value = "userId", required = true)
+			@PathVariable("userId") String userId) {
 
 		userDetailsService.deleteUser(userId);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 	
-	@PatchMapping(path = "/{userId}", consumes = { MediaType.APPLICATION_JSON_VALUE,
+	@ApiResponse(code = 204, message = "Partially Update")
+	@ApiOperation(value = "Partially update the existing user details by UserId", notes = "Partially update an Existing user details", response = UserDetailsResponseModel.class, responseContainer = "Object")
+	@PatchMapping(path = "/users/{userId}", consumes = { MediaType.APPLICATION_JSON_VALUE,
 			MediaType.APPLICATION_XML_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE,
 					MediaType.APPLICATION_XML_VALUE })
-	public ResponseEntity<UserDetailsResponseModel> updatePartialUserDetails(@PathVariable("userId") String userId,
+	public ResponseEntity<UserDetailsResponseModel> updatePartialUserDetails(
+			@ApiParam(name = "userId", type = "String", value = "userId", required = true)
+			@PathVariable("userId") String userId,
+			
+			@ApiParam(name = "UserDetailsUpdateRequestModel", type = "UserDetailsUpdateRequestModel", value = "UserDetailsUpdateRequestModel", required = true)
 			@RequestBody UserDetailsUpdateRequestModel updateRequest) {
 
 		modelMapper = new ModelMapper();
@@ -137,9 +176,13 @@ public class UserDetailsRestController {
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 	
-	@GetMapping(path = "/{userId}/addresses", 
+	@ApiResponse(code = 205, message = "Fetch the User's Addresses")
+	@ApiOperation(value = "Fetch the user's Addresses by userId", notes = "Fetch the user's Addresses", response = List.class, responseContainer = "Object")
+	@GetMapping(path = "/users/{userId}/addresses", 
 			produces = { MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE })
-	public CollectionModel<AddressDetailsResponseModel> getUserAddresses(@PathVariable("userId") String userId){
+	public CollectionModel<AddressDetailsResponseModel> getUserAddresses(
+			@ApiParam(name = "userId", type = "String", value = "userId", required = true)
+			@PathVariable("userId") String userId){
 		
 		modelMapper = new ModelMapper();
 		List<AddressDetailsDTO> userAddresses = userDetailsService.fetchUserAddresses(userId);
@@ -157,9 +200,16 @@ public class UserDetailsRestController {
 		return CollectionModel.of(response, userLink, selfLink);
 	}
 	
-	@GetMapping(path = "/{userId}/addresses/{addressId}",
+	@ApiResponse(code = 206, message = "Fetch the User's specific Address")
+	@ApiOperation(value = "Fetch the user's Address by userId and addressId", notes = "Fetch the user's specifc Addresses", response = List.class, responseContainer = "Object")
+	@GetMapping(path = "/users/{userId}/addresses/{addressId}",
 			produces = { MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE })
-	public EntityModel<AddressDetailsResponseModel> getUserAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId){
+	public EntityModel<AddressDetailsResponseModel> getUserAddress(
+			@ApiParam(name = "userId", type = "String", value = "userId", required = true)
+			@PathVariable("userId") String userId, 
+			
+			@ApiParam(name = "addressId", type = "String", value = "addressId", required = true)
+			@PathVariable("addressId") String addressId){
 		
 		modelMapper = new ModelMapper();
 		AddressDetailsResponseModel response = modelMapper.map(userDetailsService.fetchUserAddress(userId, addressId), AddressDetailsResponseModel.class);

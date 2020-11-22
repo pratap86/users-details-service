@@ -8,6 +8,8 @@ public class UserDetailsResponseModel {
 	private String firstName;
 	private String lastName;
 	private String email;
+	private String password;
+	
 	private List<AddressDetailsResponseModel> addresses;
 
 	public String getUserId() {
@@ -46,6 +48,14 @@ public class UserDetailsResponseModel {
 
 	public List<AddressDetailsResponseModel> getAddresses() {
 		return addresses;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public void setAddresses(List<AddressDetailsResponseModel> addresses) {
