@@ -85,15 +85,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	}
 
 	@Override
-	public UserDetailsDTO updateUser(UserDetailsDTO updateUserDetails, String userId) {
+	public UserDetailsDTO updateUser(UserDetailsDTO updateUserDetailsDTO, String userId) {
 		
 		modelmapper = new ModelMapper();
-		return modelmapper.map(userDetailsRepository.findByUserId(userId).map(dto -> {
-			dto.setFirstName(updateUserDetails.getFirstName());
-			dto.setLastName(updateUserDetails.getLastName());
-			dto.setEmail(updateUserDetails.getEmail());
-			dto.setPassword(updateUserDetails.getPassword());
-			return userDetailsRepository.save(dto);
+		return modelmapper.map(userDetailsRepository.findByUserId(userId).map(userDetailsEntity -> {
+			userDetailsEntity.setFirstName(updateUserDetailsDTO.getFirstName());
+			userDetailsEntity.setLastName(updateUserDetailsDTO.getLastName());
+			userDetailsEntity.setEmail(updateUserDetailsDTO.getEmail());
+			userDetailsEntity.setPassword(updateUserDetailsDTO.getPassword());
+			return userDetailsRepository.save(userDetailsEntity);
 		}).orElseThrow(() -> new UserDetailsServiceException("User Not Found By Id :"+userId)), UserDetailsDTO.class);
 	}
 

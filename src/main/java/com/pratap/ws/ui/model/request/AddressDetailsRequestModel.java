@@ -1,15 +1,37 @@
 package com.pratap.ws.ui.model.request;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import com.pratap.ws.shared.AddressType;
 
 public class AddressDetailsRequestModel {
 
+	@NotNull(message="houseNo is a required field")
+    @Size(min=3, max=16, message="houseNo must be equal to or greater than 3 characters and less than 16 characters")
 	private String houseNo;
+	
+	@NotNull(message="city is a required field")
+    @Size(min=3, max=16, message="city must be equal to or greater than 3 characters and less than 16 characters")
 	private String city;
+	
+	@NotNull(message="state is a required field")
+    @Size(min=2, max=16, message="state must be equal to or greater than 3 characters and less than 16 characters")
 	private String state;
+	
+	@NotNull(message="country is a required field")
+    @Size(min=3, max=16, message="country must be equal to or greater than 3 characters and less than 16 characters")
 	private String country;
+	
+	@NotNull(message="streetName is a required field")
+    @Size(min=4, max=16, message="streetName must be equal to or greater than 4 characters and less than 16 characters")
 	private String streetName;
+	
+	@NotNull(message="postalCode is a required field")
+    @Size(min=6, max=6, message="postalCode must be equal to 6 characters")
 	private String postalCode;
+	
+	@NotNull(message="addressType(BILLING/SHIPPING) is a required field")
 	private AddressType addressType;
 
 	public String getHouseNo() {

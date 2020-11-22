@@ -2,6 +2,7 @@ package com.pratap.ws.ui.model.request;
 
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -22,7 +23,8 @@ public class UserDetailsRequestModel {
     @NotNull(message="Password is a required field")
     @Size(min=8, max=16, message="Password must be equal to or greater than 8 characters and less than 16 characters")
 	private String password;
-    
+
+    @Valid
     private List<AddressDetailsRequestModel> addresses;
 
 	public String getFirstName() {
